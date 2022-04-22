@@ -77,17 +77,6 @@ public class Generador {
     FileWriter fwActoresNormal;
 
 
-
-    /*
-    FileWriter fwCarrera;
-    FileWriter fwDirector;
-    FileWriter fwAlumno;
-    FileWriter fwCurso;
-    FileWriter fwInstancia;
-    FileWriter fwAlumnoInstancia;
-
-     */
-
     public Generador() {
 
     }
@@ -108,42 +97,19 @@ public class Generador {
             }
             fwActoresDoble = new FileWriter(file, true);
 
-            /*
-            file = new File("./carrera.csv");
-            if (file.exists()){ file.delete(); }
-            fwCarrera = new FileWriter(file, true);
-            file = new File("./director.csv");
-            if (file.exists()){ file.delete(); }            
-            fwDirector = new FileWriter(file, true);
-            file = new File("./alumno.csv");
-            if (file.exists()){ file.delete(); }                        
-            fwAlumno = new FileWriter(file, true);
-            file = new File("./curso.csv");
-            if (file.exists()){ file.delete(); }                        
-            fwCurso = new FileWriter(file, true);
-            file = new File("./instancia.csv");
-            if (file.exists()){ file.delete(); }                        
-            fwInstancia = new FileWriter(file, true);
-            file = new File("./alumnoInstancia.csv");
-            if (file.exists()){ file.delete(); }
-            fwAlumnoInstancia = new FileWriter(file, true);
+            file = new File("./actoresExtra.csv");
+            if (file.exists()) {
+                file.delete();
+            }
+            fwActoresExtra = new FileWriter(file, true);
 
-             */
 
             this.nro_anios = _nro_anios;
             this.CrearDiccionarios();
             this.generarPersona();
             fwPersonas.close();
             fwActoresDoble.close();
-/*
-            fwCarrera.close();
-            fwDirector.close();
-            fwAlumno.close();
-            fwCurso.close();
-            fwInstancia.close();
-            fwAlumnoInstancia.close();
-
- */
+            fwActoresExtra.close();
 
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -163,16 +129,6 @@ public class Generador {
         this.CargarDatos(dic_actores_doblaje, "especialidadDobles.txt");
         System.out.println("Especialidad = " + dic_actores_doblaje.size());
 
-        /* this.CargarDatos(dic_fechas_nac, "fechas_1990-2000.txt");
-        System.out.println("Fechas de nacimiento = " + dic_fechas_nac.size());
-        this.CargarDatos(dic_jerarquias, "jerarquias.txt");
-        System.out.println("Jerarquías = " + dic_jerarquias.size());
-        this.CargarDatos(dic_carreras, "carreras.txt");
-        System.out.println("Carreras universitarias = " + dic_carreras.size());
-        nro_carreras = dic_carreras.size();
-        this.CargarDatos(dic_cursos, "cursos.txt");
-        System.out.println("Cursos = " + dic_cursos.size());
-        */
     }
 
     public void CargarDatos(ArrayList<String> list, String archivo) {
@@ -200,25 +156,6 @@ public class Generador {
             }
         }
     }
-    /*
-    //Carrera(id[PK],nombre,idDirector[FK])    
-    public void generarCarreras() {
-        System.out.println("--- Generación de datos ---");
-        String nombre = "";
-        System.out.println("Generando datos de carreras ");
-        while (id_carrera <= nro_carreras) {
-            System.out.print(".");
-            id_carrera++;
-            nombre = dic_carreras.get(rand.nextInt(dic_carreras.size()));
-            this.writeCarrera(this.id_carrera, nombre);
-            this.generarProfesores();
-            this.generarDirectores();
-            this.generarCursos();
-            this.generarAlumnos();
-            this.generarInstancias();
-        }
-    }
-     */
 
 
     public void writeActoresDoble(int id, String nombre, String direccion, String telefono, String especialidad) {
@@ -230,16 +167,27 @@ public class Generador {
             System.out.println(ex.getMessage());
         }
     }
+    public void writeActoresExtra(int id, String nombre, String direccion, String telefono, String tiempo) {
+        //System.out.println(id + "," + nombre + "," + direccion + "," + telefono + "," + especialidad + "\n");
+        String linea = id + "," + nombre + "," + direccion + "," + telefono + "," + tiempo + "\n";
+        try {
+            fwActoresExtra.write(linea);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
 
     public void generarActor(int id, String nombre, String direccion, String telefono) {
         int rnd = ThreadLocalRandom.current().nextInt(0, 3);
         switch(rnd) {
-            case 1:
+            case 1: // Doble
                 String especialidad =dic_actores_doblaje.get(rand.nextInt(dic_actores_doblaje.size()));
                 this.writeActoresDoble(id, nombre, direccion, telefono, especialidad);
                 break;
-            case 2:
-               // this.generarManager();
+            case 2: //Extra
+
+                int tiempo = ThreadLocalRandom.current().nextInt(0, 80);
+                this.writeActoresExtra(id, nombre, direccion, telefono, String.valueOf(tiempo));
                 break;
             case 3:
                 //this.generarDirector();
@@ -248,7 +196,6 @@ public class Generador {
             default:
             }
         }
-
 
     public void generarPersona() {
         String nombre;
@@ -266,13 +213,6 @@ public class Generador {
                 nombre = dic_nombres_mujeres.get(rand.nextInt(dic_nombres_mujeres.size()));
             }
             telefono = telefono + 1;
-            /*
-            apellidoPat = dic_apellidos.get(rand.nextInt(dic_apellidos.size()));
-            apellidoMat = dic_apellidos.get(rand.nextInt(dic_apellidos.size()));
-            nombreCompleto = nombre + apellidoPat + apellidoMat;
-            titulo = dic_carreras.get(rand.nextInt(dic_carreras.size()));
-            jerarquia = dic_jerarquias.get(rand.nextInt(dic_jerarquias.size()));
-             */
             this.writePersona(id_persona_n, nombre, direccion, "569" + Integer.toString(telefono));
             this.elegirPersona(id_persona_n, nombre, direccion, "569" + Integer.toString(telefono));
 
