@@ -3,7 +3,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -43,38 +42,26 @@ public class Generador {
     ArrayList<String> dic_nombres_mujeres = new ArrayList();
     ArrayList<String> dic_apellidos = new ArrayList();
     ArrayList<String> dic_actores_doblaje = new ArrayList();
+    ArrayList<String> dic_actores_normal = new ArrayList();
+    ArrayList<String> dic_fechas_nacimiento = new ArrayList();
 
 
-    ArrayList<String> dic_fechas_nac = new ArrayList();
-    ArrayList<String> dic_jerarquias = new ArrayList();
-    ArrayList<String> dic_carreras = new ArrayList();
-    ArrayList<String> dic_cursos = new ArrayList();
-    ArrayList<String> profesores = new ArrayList();
 
-    int anio_base = 2000;
+
     int nro_anios = 0;
-    //int nro_carreras = 0;
     int nro_actores = 0;
     int min_nro_personas = 20;
     int max_nro_personas = 30;
-    int min_alumnos_carrera = 80;
-    int max_alumnos_carrera = 100;
-    int min_alumnos_curso = 70;
-    int max_alumnos_curso = 100;
-    int id_carrera = 0;
+
     int id_persona_1 = 0;
     int id_persona_n = 0;
-    int id_alumno_1 = 1000000;
-    int id_alumno_n = 0;
-    int id_curso_1 = 0;
-    int id_curso_n = 0;
-    int id_instancia_1 = 0;
-    int id_instancia_n = 0;
+    int snn = 100000000;
 
     FileWriter fwPersonas;
     FileWriter fwActoresDoble;
     FileWriter fwActoresExtra;
     FileWriter fwActoresNormal;
+    FileWriter fwManagers;
 
 
     public Generador() {
@@ -103,6 +90,19 @@ public class Generador {
             }
             fwActoresExtra = new FileWriter(file, true);
 
+            file = new File("./actoresNormales.csv");
+            if (file.exists()) {
+                file.delete();
+            }
+            fwActoresNormal = new FileWriter(file, true);
+
+            file = new File("./managers.csv");
+            if (file.exists()) {
+                file.delete();
+            }
+            fwManagers = new FileWriter(file, true);
+
+
 
             this.nro_anios = _nro_anios;
             this.CrearDiccionarios();
@@ -110,6 +110,8 @@ public class Generador {
             fwPersonas.close();
             fwActoresDoble.close();
             fwActoresExtra.close();
+            fwActoresNormal.close();
+            fwManagers.close();
 
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -128,6 +130,13 @@ public class Generador {
         System.out.println("Apellidos = " + dic_apellidos.size());
         this.CargarDatos(dic_actores_doblaje, "especialidadDobles.txt");
         System.out.println("Especialidad = " + dic_actores_doblaje.size());
+        this.CargarDatos(dic_actores_normal, "papeles.txt");
+        System.out.println("Papeles = " + dic_actores_normal.size());
+        this.CargarDatos(dic_fechas_nacimiento, "fechas_1990-2000.txt");
+        System.out.println("Fechas de nacimiento = " + dic_fechas_nacimiento.size());
+
+
+
 
     }
 
@@ -157,6 +166,15 @@ public class Generador {
         }
     }
 
+    public void writeManager(int id, String nombre, String direccion, String telefono, String snn, String fechaNacimiento) {
+        //System.out.println(id + "," + nombre + "," + direccion + "," + telefono + "," + especialidad + "\n");
+        String linea = id + "," + nombre + "," + direccion + "," + telefono + "," + snn + "," + fechaNacimiento + "\n";
+        try {
+            fwManagers.write(linea);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
 
     public void writeActoresDoble(int id, String nombre, String direccion, String telefono, String especialidad) {
         //System.out.println(id + "," + nombre + "," + direccion + "," + telefono + "," + especialidad + "\n");
@@ -177,20 +195,29 @@ public class Generador {
         }
     }
 
+    public void writeActoresNormal(int id, String nombre, String direccion, String telefono, String papel) {
+        String linea = id + "," + nombre + "," + direccion + "," + telefono + "," + papel + "\n";
+        try {
+            fwActoresNormal.write(linea);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
     public void generarActor(int id, String nombre, String direccion, String telefono) {
-        int rnd = ThreadLocalRandom.current().nextInt(0, 3);
+        int rnd = ThreadLocalRandom.current().nextInt(1, 4);
         switch(rnd) {
             case 1: // Doble
                 String especialidad =dic_actores_doblaje.get(rand.nextInt(dic_actores_doblaje.size()));
                 this.writeActoresDoble(id, nombre, direccion, telefono, especialidad);
                 break;
             case 2: //Extra
-
                 int tiempo = ThreadLocalRandom.current().nextInt(0, 80);
                 this.writeActoresExtra(id, nombre, direccion, telefono, String.valueOf(tiempo));
                 break;
-            case 3:
-                //this.generarDirector();
+            case 3: //Normal
+                String papel = dic_actores_normal.get(rand.nextInt(dic_actores_normal.size()));
+                this.writeActoresNormal(id, nombre, direccion, telefono,papel);
                 break;
 
             default:
@@ -221,15 +248,22 @@ public class Generador {
         id_persona_n--;
     }
 
+    public void generarManager(int id, String nombre, String direccion, String telefono){
+        String snn = String.valueOf((this.snn + 1));
+        String fechaNacimiento = dic_fechas_nacimiento.get(rand.nextInt(dic_fechas_nacimiento.size()));
+        this.writeManager(id,  nombre,  direccion,  telefono, snn, fechaNacimiento);
+        this.snn =+1;
+    }
+
     public void elegirPersona(int id, String nombre, String direccion, String telefono){
 
-        int rnd = ThreadLocalRandom.current().nextInt(0, 3) + 0;
+        int rnd = ThreadLocalRandom.current().nextInt(1, 4);
         switch(rnd) {
             case 1:
-                this.generarActor(id, nombre, direccion, telefono);
+                this.generarActor(id,  nombre,  direccion,  telefono);
                 break;
             case 2:
-                //this.generarManager();
+                this.generarManager(id,  nombre,  direccion,  telefono);
                 break;
             case 3:
                 //this.generarDirector();
@@ -261,99 +295,6 @@ public class Generador {
             System.out.println(ex.getMessage());
         }
     }
-/*
-    public void generarDirectores() {
-        int idDirector = 0;
-        int anio = this.anio_base;
-        for (int a = 1; a <= this.nro_anios; a++) {
-            idDirector = id_profesor_1 + rand.nextInt(id_profesor_n - id_profesor_1 + 1);
-            this.writeDirector(this.id_carrera, idDirector, anio);
-            anio++;
-        }
-    }
-
-    // Curso(id,nombre,idCarrera[FK],semestre,creditos)
-    public void generarCursos() {
-        String nombre;
-        int creditos;
-        int semestre;
-        this.id_curso_1 = this.id_carrera * 10000;
-        this.id_curso_n = this.id_curso_1;
-        // 12 semestres
-        for (int i = 1; i <= 12; i++) {
-            // 6 cursos por semestre
-            for (int j = 1; j <= 6; j++) {
-                nombre = dic_cursos.get(rand.nextInt(dic_cursos.size()));
-                semestre = i;
-                creditos = 3 + rand.nextInt(4);
-                this.writeCurso(id_curso_n, nombre, this.id_carrera, semestre, creditos);
-                id_curso_n++;
-            }
-        }
-        id_curso_n--;
-    }
-
-    public void generarAlumnos() {
-        String nombre = "";
-        String apellidoPat = "";
-        String apellidoMat = "";
-        String sexo = "";
-        String fecnac = "";
-        int anioIngreso = 0;
-        int alumnos_carrera = this.min_alumnos_carrera + rand.nextInt(this.max_alumnos_carrera - this.min_alumnos_carrera + 1);
-        int nro_alumnos = nro_anios * 6 * alumnos_carrera; //suponemos 100 alumnos por nivel
-        id_alumno_1 = id_carrera * 1000000;
-        id_alumno_n = id_alumno_1;
-        for (int i = 1; i <= nro_alumnos; i++) {
-            if (rand.nextBoolean()) {
-                nombre = dic_nombres_hombres.get(rand.nextInt(dic_nombres_hombres.size()));
-                sexo = "M";
-            } else {
-                nombre = dic_nombres_mujeres.get(rand.nextInt(dic_nombres_mujeres.size()));
-                sexo = "F";
-            }
-            apellidoPat = dic_apellidos.get(rand.nextInt(dic_apellidos.size()));
-            apellidoMat = dic_apellidos.get(rand.nextInt(dic_apellidos.size()));
-            fecnac = dic_fechas_nac.get(rand.nextInt(dic_fechas_nac.size()));
-            anioIngreso = 1995 + rand.nextInt(5);
-            this.writeAlumno(id_alumno_n, nombre, apellidoPat, apellidoMat, sexo, fecnac, anioIngreso);
-            id_alumno_n++;
-        }
-        id_alumno_n--;
-    }
-
-    public void generarInstancias() {
-        int idCurso = this.id_curso_1;
-        int anio = 0;
-        int idProfesor = 0;
-        int nroAlumnos = 0;
-        int idAlumno = 0;
-        double nota = 0;
-        while (idCurso <= this.id_curso_n) {
-            //generar instancia para cada año
-            anio = this.anio_base;
-            for (int a = 1; a <= this.nro_anios; a++) {
-                idProfesor = this.id_profesor_1 + rand.nextInt(this.id_profesor_n - this.id_profesor_1 + 1);
-                nroAlumnos = this.min_alumnos_curso + rand.nextInt(this.max_alumnos_curso - this.min_alumnos_curso + 1);
-                this.writeInstanciaCurso(idCurso, anio, idProfesor, nroAlumnos);
-                //asignar alumnos a la Instancia
-                for (int i = 1; i <= nroAlumnos; i++) {
-                    idAlumno = this.id_alumno_1 + rand.nextInt(this.id_alumno_n - this.id_alumno_1 + 1);
-                    if (rand.nextBoolean()) {
-                        nota = 7;
-                    } else {
-                        nota = 1 + rand.nextInt(6) + rand.nextDouble();
-                        nota = redondear(nota, 1);
-                    }
-                    this.writeAlumnoInstancia(idAlumno, idCurso, anio, nota);
-                }
-                anio++;
-            }
-            idCurso++;
-        }
-    }
-
- */
 
     public double redondear(double val, int places) {
         long factor = (long) Math.pow(10, places);
@@ -361,69 +302,5 @@ public class Generador {
         long tmp = Math.round(val);
         return (double) tmp / factor;
     }
-/*
-    public void writeCarrera(int id, String nombre) {
-        //System.out.println("Carrera(" + id + "," + nombre + ")");
-        String linea = id + "," + nombre + "\n";
-        try {
-            fwCarrera.write(linea);
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }
-    }
-
-    public void writeCurso(int id, String nombre, int idCarrera, int semestre, int creditos) {
-        //System.out.println("Curso(" + id + "," + nombre + "," + idCarrera + "," + semestre + "," + creditos + ")");
-        String linea = id + "," + nombre + "," + idCarrera + "," + semestre + "," + creditos + "\n";
-        try {
-            fwCurso.write(linea);
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }
-    }
-
-
-
-    public void writeDirector(int idCarrera, int idProfesor, int anio) {
-        //System.out.println("Director(" + idCarrera + "," + idProfesor + "," + anio + ")");
-        String linea = idCarrera + "," + idProfesor + "," + anio + "\n";
-        try {
-            fwDirector.write(linea);
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        } 
-    }
-
-    public void writeAlumno(int id, String nombre, String apellidoPat, String apellidoMat, String sexo, String fecnac, int anioIngreso) {
-        //System.out.println("Alumno(" + id + "," + nombre + "," + apellidoPat + "," + apellidoMat + "," + sexo + "," + fecnac + "," + anioIngreso + ")");
-        String linea = id + "," + nombre + "," + apellidoPat + "," + apellidoMat + "," + sexo + "," + fecnac + "," + anioIngreso + "\n";
-        try {
-            fwAlumno.write(linea);
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }         
-    }
-
-    public void writeInstanciaCurso(int idCurso, int anio, int idProfesor, int nroAlumnos) {
-        //System.out.println("InstanciaCurso(" + idCurso + "," + anio + "," + idProfesor + "," + nroAlumnos + ")");
-        String linea = idCurso + "," + anio + "," + idProfesor + "," + nroAlumnos + "\n";
-        try {
-            fwInstancia.write(linea);
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }          
-    }
-
-    public void writeAlumnoInstancia(int idAlumno, int idCurso, int anio, double nota) {
-        //System.out.println("AlumnoInstancia(" + idAlumno + "," + idCurso + "," + anio + "," + nota + ")");
-        String linea = idAlumno + "," + idCurso + "," + anio + "," + nota + "\n";
-        try {
-            fwAlumnoInstancia.write(linea);
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }
-    }
-
- */
 
 }
