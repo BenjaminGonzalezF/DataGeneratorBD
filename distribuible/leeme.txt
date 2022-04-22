@@ -1,0 +1,28 @@
+UnivDataGenerator permite generar archivos CSV con información de una universidad.
+Uso:
+java -jar UnivDataGenerator.jar N 
+Donde N es un número entero que indica el número de años de simulación.
+
+El resultado de la ejecución son 7 archivos:
+alumno.csv
+alumnoInstancia.csv
+carrera.csv
+curso.csv
+director.csv
+instancia.csv
+profesor.csv
+
+Estos archivos pueden cargarse en una base de datos relacional con la siguiente estructura de tablas:
+
+Carrera(id[PK],nombre)
+Profesor(id[PK],nombre,titulo,jerarquia)
+Director(idCarrera[FK],idProfesor[FK],año)
+Curso(id[PK],nombre,semestre,creditos,idCarrera[FK])
+Alumno(id[PK],nombre,apellidoPat,apellidoMat,sexo,fecnac,añoIngreso)
+InstanciaCurso(idCurso[FK],año,idProfesor,nroAlumnos) PK={idCurso,año} 
+AlumnoInstancia(idAlumno[FK],idCurso[FK],año,nota) 
+
+El archivo "esquema-postgresql.sql" es un script que permite crear la estructura de tablas en PostgreSQL.
+
+
+
