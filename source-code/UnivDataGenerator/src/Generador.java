@@ -44,6 +44,8 @@ public class Generador {
     ArrayList<String> dic_actores_doblaje = new ArrayList();
     ArrayList<String> dic_actores_normal = new ArrayList();
     ArrayList<String> dic_fechas_nacimiento = new ArrayList();
+    ArrayList<String> dic_direcciones = new ArrayList();
+
 
 
 
@@ -62,6 +64,7 @@ public class Generador {
     FileWriter fwActoresExtra;
     FileWriter fwActoresNormal;
     FileWriter fwManagers;
+    FileWriter fwDirectores;
 
 
     public Generador() {
@@ -101,6 +104,12 @@ public class Generador {
                 file.delete();
             }
             fwManagers = new FileWriter(file, true);
+            file = new File("./directores.csv");
+            if (file.exists()) {
+                file.delete();
+            }
+            fwDirectores = new FileWriter(file, true);
+
 
 
 
@@ -112,6 +121,7 @@ public class Generador {
             fwActoresExtra.close();
             fwActoresNormal.close();
             fwManagers.close();
+            fwDirectores.close();
 
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -134,7 +144,8 @@ public class Generador {
         System.out.println("Papeles = " + dic_actores_normal.size());
         this.CargarDatos(dic_fechas_nacimiento, "fechas_1990-2000.txt");
         System.out.println("Fechas de nacimiento = " + dic_fechas_nacimiento.size());
-
+        this.CargarDatos(dic_direcciones, "direcciones.txt");
+        System.out.println("Direcciones = " + dic_direcciones.size());
 
 
 
@@ -166,8 +177,16 @@ public class Generador {
         }
     }
 
+    public void writeDirector(int id, String nombre, String direccion, String telefono) {
+        String linea = id + "," + nombre + "," + direccion + "," + telefono + "\n";
+        try {
+            fwDirectores.write(linea);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
     public void writeManager(int id, String nombre, String direccion, String telefono, String snn, String fechaNacimiento) {
-        //System.out.println(id + "," + nombre + "," + direccion + "," + telefono + "," + especialidad + "\n");
         String linea = id + "," + nombre + "," + direccion + "," + telefono + "," + snn + "," + fechaNacimiento + "\n";
         try {
             fwManagers.write(linea);
@@ -226,22 +245,22 @@ public class Generador {
 
     public void generarPersona() {
         String nombre;
-        String direccion = "Molina";
-        int telefono = 10000001;
         int min = this.min_nro_personas;
         int max = this.max_nro_personas;
         this.nro_actores = rand.nextInt(max - min) + min;
         id_persona_1 = 1;
         id_persona_n = id_persona_1;
         for (int i = 0; i < this.nro_anios; i++) {
+            int telefono = ThreadLocalRandom.current().nextInt(10000000, 99999999);
+            String direccion = dic_direcciones.get(rand.nextInt(dic_direcciones.size()));
             if (rand.nextBoolean()) {
                 nombre = dic_nombres_hombres.get(rand.nextInt(dic_nombres_hombres.size()));
             } else {
                 nombre = dic_nombres_mujeres.get(rand.nextInt(dic_nombres_mujeres.size()));
             }
             telefono = telefono + 1;
-            this.writePersona(id_persona_n, nombre, direccion, "569" + Integer.toString(telefono));
-            this.elegirPersona(id_persona_n, nombre, direccion, "569" + Integer.toString(telefono));
+            this.writePersona(id_persona_n, nombre, direccion, "9" + Integer.toString(telefono));
+            this.elegirPersona(id_persona_n, nombre, direccion, "9" + Integer.toString(telefono));
 
             id_persona_n++;
         }
@@ -249,11 +268,12 @@ public class Generador {
     }
 
     public void generarManager(int id, String nombre, String direccion, String telefono){
-        String snn = String.valueOf((this.snn + 1));
+        String SNN = String.valueOf((this.snn + 1));
         String fechaNacimiento = dic_fechas_nacimiento.get(rand.nextInt(dic_fechas_nacimiento.size()));
-        this.writeManager(id,  nombre,  direccion,  telefono, snn, fechaNacimiento);
-        this.snn =+1;
+        this.writeManager(id,  nombre,  direccion,  telefono, SNN, fechaNacimiento);
+        this.snn =snn + 1;
     }
+
 
     public void elegirPersona(int id, String nombre, String direccion, String telefono){
 
@@ -266,7 +286,7 @@ public class Generador {
                 this.generarManager(id,  nombre,  direccion,  telefono);
                 break;
             case 3:
-                //this.generarDirector();
+                this.writeDirector(id,  nombre,  direccion,  telefono);
                 break;
 
             default:
