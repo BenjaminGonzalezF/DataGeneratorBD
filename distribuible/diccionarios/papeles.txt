@@ -1,0 +1,3 @@
+protagonista
+secundario
+antagonista

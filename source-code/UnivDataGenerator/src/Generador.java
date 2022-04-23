@@ -30,12 +30,10 @@ import java.util.concurrent.ThreadLocalRandom;
  AlumnoInstancia(idAlumno[FK],idCurso[FK],anio,nota) FK={idCurso,año}
  */
 
-/*
- Algunas estadísticas
- las carreras duran 12 semestres (6 años)
- 6 cursos por semestre
- un curso puede tener entre 3 y 6 creditos
- */
+
+
+
+
 public class Generador {
 
     Random rand = new Random(9999);
@@ -53,12 +51,6 @@ public class Generador {
 
     //List<List<String>> id_directores = new ArrayList<List<String>>();
     int contDirectores = 0;
-
-
-
-
-
-
 
     int ref_produccion = 0;
     int nro_anios = 0;
