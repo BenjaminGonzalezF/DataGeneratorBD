@@ -45,7 +45,7 @@ public class Generador {
     ArrayList<String> dic_actores_normal = new ArrayList();
     ArrayList<String> dic_fechas_nacimiento = new ArrayList();
     ArrayList<String> dic_direcciones = new ArrayList();
-
+    ArrayList<String> dic_producciones = new ArrayList();
 
 
 
@@ -65,6 +65,11 @@ public class Generador {
     FileWriter fwActoresNormal;
     FileWriter fwManagers;
     FileWriter fwDirectores;
+    FileWriter fwProducciones;
+    FileWriter fwPeliculas;
+    FileWriter fwSeries;
+
+
 
 
     public Generador() {
@@ -110,11 +115,27 @@ public class Generador {
             }
             fwDirectores = new FileWriter(file, true);
 
+            file = new File("./producciones.csv");
+            if (file.exists()) {
+                file.delete();
+            }
+            fwProducciones = new FileWriter(file, true);
 
+            file = new File("./peliculas.csv");
+            if (file.exists()) {
+                file.delete();
+            }
+            fwPeliculas = new FileWriter(file, true);
 
+            file = new File("./series.csv");
+            if (file.exists()) {
+                file.delete();
+            }
+            fwSeries = new FileWriter(file, true);
 
             this.nro_anios = _nro_anios;
             this.CrearDiccionarios();
+            this.generarProducciones();
             this.generarPersona();
             fwPersonas.close();
             fwActoresDoble.close();
@@ -122,6 +143,9 @@ public class Generador {
             fwActoresNormal.close();
             fwManagers.close();
             fwDirectores.close();
+            fwProducciones.close();
+            fwPeliculas.close();
+            fwSeries.close();
 
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -146,6 +170,8 @@ public class Generador {
         System.out.println("Fechas de nacimiento = " + dic_fechas_nacimiento.size());
         this.CargarDatos(dic_direcciones, "direcciones.txt");
         System.out.println("Direcciones = " + dic_direcciones.size());
+        this.CargarDatos(dic_producciones, "producciones.txt");
+        System.out.println("Producciones = " + dic_producciones.size());
 
 
 
@@ -242,6 +268,77 @@ public class Generador {
             default:
             }
         }
+
+    public void writeProducciones(int id, String fecha, String censura, String nombre, String categoria) {
+        String linea = id  + "," + fecha + "," + censura + "," +nombre + "," + categoria+ "\n";
+        try {
+            fwProducciones.write(linea);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public void writePelicula(int id, String fecha, String censura, String nombre, String categoria) {
+
+        //System.out.println("Profesor(" + id + "," + nombre + "," + titulo + "," + jerarquia + ")");
+        String linea = id  + "," + fecha + "," + censura + "," +nombre + "," + categoria+ "\n";
+        try {
+            fwPeliculas.write(linea);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public void writeSerie(int id, String fecha, String censura, String nombre, String categoria) {
+
+        //System.out.println("Profesor(" + id + "," + nombre + "," + titulo + "," + jerarquia + ")");
+        String linea = id  + "," + fecha + "," + censura + "," +nombre + "," + categoria+ "\n";
+        try {
+            fwSeries.write(linea);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public void generarProducciones() {
+        int id;
+        String fecha;
+        ArrayList<String> censuras = new ArrayList();
+
+        censuras.add("No");
+        censuras.add("Si");
+        String censura;
+
+        ArrayList<String> categorias = new ArrayList();
+        categorias.add("Drama");
+        categorias.add("Accion");
+        categorias.add("Menores de edad");
+        categorias.add("Aventura");
+        String categoria;
+
+        String nombre = "";
+
+        for (int i = 0; i < this.dic_producciones.size(); i++) {
+            id = i;
+            fecha = dic_fechas_nacimiento.get(rand.nextInt(dic_fechas_nacimiento.size()));
+            censura = censuras.get(ThreadLocalRandom.current().nextInt(0, censuras.size()));
+            categoria = categorias.get(ThreadLocalRandom.current().nextInt(0, categorias.size()));
+            nombre = dic_producciones.get(rand.nextInt(dic_producciones.size()));;
+            this.writeProducciones( id,  fecha,  censura,  nombre,  categoria);
+
+            //Pelicula
+            if(rand.nextBoolean()){
+                this.writePelicula( id,  fecha,  censura,  nombre,  categoria);
+            }
+            //Serie
+            else{
+                this.writeSerie( id,  fecha,  censura,  nombre,  categoria);
+            }
+
+
+        }
+
+    }
 
     public void generarPersona() {
         String nombre;
