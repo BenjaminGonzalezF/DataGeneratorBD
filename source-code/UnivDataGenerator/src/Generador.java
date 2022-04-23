@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -31,9 +32,6 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 
 
-
-
-
 public class Generador {
 
     Random rand = new Random(9999);
@@ -49,7 +47,10 @@ public class Generador {
 
     ArrayList<Integer> id_managers = new ArrayList();
 
-    //List<List<String>> id_directores = new ArrayList<List<String>>();
+
+    HashMap<Integer, Integer> id_directores = new HashMap<Integer, Integer>();
+
+
     int contDirectores = 0;
 
     int ref_produccion = 0;
@@ -57,7 +58,8 @@ public class Generador {
     int nro_actores = 0;
     int min_nro_personas = 20;
     int max_nro_personas = 30;
-
+    int id_pelicula = 1;
+    int id_serie = 1;
     int id_persona_1 = 0;
     int id_persona_n = 0;
     int snn = 100000000;
@@ -159,8 +161,9 @@ public class Generador {
 
             this.nro_anios = _nro_anios;
             this.CrearDiccionarios();
-            this.generarProducciones();
             this.generarPersona();
+            this.generarProducciones();
+
             fwPersonas.close();
             fwActores.close();
             fwActoresDoble.close();
@@ -298,8 +301,8 @@ public class Generador {
             }
         }
 
-    public void writeProducciones(int id, String fecha, String censura, String nombre, String categoria) {
-        String linea = id  + "," + fecha + "," + censura + "," +nombre + "," + categoria+ "\n";
+    public void writeProducciones(int id, String fecha, String censura, String nombre, String categoria, int ref_director) {
+        String linea = id  + "," + fecha + "," + censura + "," +nombre + "," + categoria + "," + ref_director + "\n";
         try {
             fwProducciones.write(linea);
         } catch (Exception ex) {
@@ -307,10 +310,9 @@ public class Generador {
         }
     }
 
-    public void writePelicula(int id, String fecha, String censura, String nombre, String categoria) {
+    public void writePelicula(int id, String fecha, String censura, String nombre, String categoria, int ref_director , int ref_produccion) {
 
-        //System.out.println("Profesor(" + id + "," + nombre + "," + titulo + "," + jerarquia + ")");
-        String linea = id  + "," + fecha + "," + censura + "," +nombre + "," + categoria+ "\n";
+        String linea = id  + "," + fecha + "," + censura + "," +nombre + "," + categoria+ "," + ref_director + "," + ref_produccion + "\n";
         try {
             fwPeliculas.write(linea);
         } catch (Exception ex) {
@@ -318,10 +320,9 @@ public class Generador {
         }
     }
 
-    public void writeSerie(int id, String fecha, String censura, String nombre, String categoria) {
+    public void writeSerie(int id, String fecha, String censura, String nombre, String categoria, int ref_director, int ref_produccion) {
 
-        //System.out.println("Profesor(" + id + "," + nombre + "," + titulo + "," + jerarquia + ")");
-        String linea = id  + "," + fecha + "," + censura + "," +nombre + "," + categoria+ "\n";
+        String linea = id  + "," + fecha + "," + censura + "," +nombre + "," + categoria+ "," + ref_director + "," + ref_produccion +"\n";
         try {
             fwSeries.write(linea);
         } catch (Exception ex) {
@@ -347,21 +348,29 @@ public class Generador {
 
         String nombre = "";
 
+        int ref_director = 0;
+
         for (int i = 0; i < this.dic_producciones.size(); i++) {
             id = i;
             fecha = dic_fechas_nacimiento.get(rand.nextInt(dic_fechas_nacimiento.size()));
             censura = censuras.get(ThreadLocalRandom.current().nextInt(0, censuras.size()));
             categoria = categorias.get(ThreadLocalRandom.current().nextInt(0, categorias.size()));
             nombre = dic_producciones.get(rand.nextInt(dic_producciones.size()));;
-            this.writeProducciones( id,  fecha,  censura,  nombre,  categoria);
+            ref_director = i;
+
+
+            this.writeProducciones( id,  fecha,  censura,  nombre,  categoria,ref_director);
 
             //Pelicula
             if(rand.nextBoolean()){
-                this.writePelicula( id,  fecha,  censura,  nombre,  categoria);
+                this.writePelicula( id_pelicula,  fecha,  censura,  nombre,  categoria, ref_director,id);
+                id_pelicula+=1;
+
             }
             //Serie
             else{
-                this.writeSerie( id,  fecha,  censura,  nombre,  categoria);
+                this.writeSerie( id_serie,  fecha,  censura,  nombre,  categoria, ref_director,id);
+                id_serie+=1;
             }
 
 
@@ -376,19 +385,29 @@ public class Generador {
         this.nro_actores = rand.nextInt(max - min) + min;
         id_persona_1 = 1;
         id_persona_n = id_persona_1;
-        for (int i = 0; i < this.nro_anios; i++) {
 
+        for (int i = 0; i < this.nro_anios; i++) {
             int telefono = ThreadLocalRandom.current().nextInt(10000000, 99999999);
             String direccion = dic_direcciones.get(rand.nextInt(dic_direcciones.size()));
+
+
+
             if (rand.nextBoolean()) {
                 nombre = dic_nombres_hombres.get(rand.nextInt(dic_nombres_hombres.size()));
             } else {
                 nombre = dic_nombres_mujeres.get(rand.nextInt(dic_nombres_mujeres.size()));
             }
             telefono = telefono + 1;
-            this.writePersona(id_persona_n, nombre, direccion, "9" + Integer.toString(telefono));
 
-            this.elegirPersona(id_persona_n, nombre, direccion, "9" + Integer.toString(telefono));
+            this.writePersona(id_persona_n, nombre, direccion, "9" + Integer.toString(telefono));
+            //Primero se generan si o si 130 directores 1 para cada pelicula
+            if(i <130){
+                this.writeDirector(id_persona_n,nombre,direccion,"9" + Integer.toString(telefono), String.valueOf(i));
+                this.writeAcargo( String.valueOf(i),  String.valueOf(i));
+            }
+            else {
+                this.elegirPersona(id_persona_n, nombre, direccion, "9" + Integer.toString(telefono));
+            }
 
             id_persona_n++;
         }
@@ -405,7 +424,7 @@ public class Generador {
 
     public void elegirPersona(int id, String nombre, String direccion, String telefono){
 
-        int rnd = ThreadLocalRandom.current().nextInt(1, 4);
+        int rnd = ThreadLocalRandom.current().nextInt(1, 3);
         switch(rnd) {
             case 1://Actor
                 if (id_managers.size() > 1) {
@@ -420,38 +439,20 @@ public class Generador {
                 this.generarManager(id,  nombre,  direccion,  telefono);
                 id_managers.add(id);
                 break;
-            case 3://Director
-
-                if(ref_produccion== 0 ){
-                    // id_directores.add(new ArrayList<String>());
-                    //id_directores.get(0).add(String.valueOf(ref_produccion));
-                    //id_directores.get(0).add(String.valueOf(id));
-                    this.writeAcargo(String.valueOf(ref_produccion), String.valueOf(id));
-                }
-                else {
-                    if(ref_produccion < 130) {
-                        //id_directores.add(new ArrayList<String>());
-                        //id_directores.get(id_directores.size() - 1).add(String.valueOf(ref_produccion));
-                        //id_directores.get(id_directores.size() - 1).add(String.valueOf(id));
-
-                        this.writeAcargo(String.valueOf(ref_produccion), String.valueOf(id));
-                    }
-                }
-
-                this.writeDirector(id,  nombre,  direccion,  telefono , String.valueOf(ref_produccion));
-
-                break;
 
             default:
+
         }
+        /*
         //Si es director trabajara en su produccion
         if(rnd == 3) {
-            this.writeTrabaja(id, ref_produccion);
+            this.writeTrabaja(id, ref_produccion-1);
         }
         else{
+        */
             this.writeTrabaja(id,ThreadLocalRandom.current().nextInt(0, 129));
-        }
-        ref_produccion+=1;
+
+
     }
 
     public void writeAcargo(String ref_produccion, String ref_director) {
