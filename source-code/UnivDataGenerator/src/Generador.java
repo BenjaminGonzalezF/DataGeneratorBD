@@ -63,6 +63,7 @@ public class Generador {
     int snn = 100000000;
 
     FileWriter fwPersonas;
+    FileWriter fwActores;
     FileWriter fwActoresDoble;
     FileWriter fwActoresExtra;
     FileWriter fwActoresNormal;
@@ -73,8 +74,6 @@ public class Generador {
     FileWriter fwSeries;
     FileWriter fwAcargo;
     FileWriter fwTrabajan;
-
-
 
 
 
@@ -92,6 +91,12 @@ public class Generador {
                 file.delete();
             }
             fwPersonas = new FileWriter(file, true);
+
+            file = new File("./actores.csv");
+            if (file.exists()) {
+                file.delete();
+            }
+            fwActores = new FileWriter(file, true);
 
             file = new File("./actoresDoble.csv");
             if (file.exists()) {
@@ -157,6 +162,7 @@ public class Generador {
             this.generarProducciones();
             this.generarPersona();
             fwPersonas.close();
+            fwActores.close();
             fwActoresDoble.close();
             fwActoresExtra.close();
             fwActoresNormal.close();
@@ -273,6 +279,7 @@ public class Generador {
     public void generarActor(int id, String nombre, String direccion, String telefono) {
         int rnd = ThreadLocalRandom.current().nextInt(1, 4);
         Integer ref_manager = id_managers.get(ThreadLocalRandom.current().nextInt(0, id_managers.size()));
+        this.writeActor(id, nombre, direccion, telefono,ref_manager);
         switch(rnd) {
             case 1: // Doble
                 String especialidad =dic_actores_doblaje.get(rand.nextInt(dic_actores_doblaje.size()));
@@ -411,6 +418,7 @@ public class Generador {
                 break;
             case 2://Manager
                 this.generarManager(id,  nombre,  direccion,  telefono);
+                id_managers.add(id);
                 break;
             case 3://Director
 
@@ -418,9 +426,7 @@ public class Generador {
                     // id_directores.add(new ArrayList<String>());
                     //id_directores.get(0).add(String.valueOf(ref_produccion));
                     //id_directores.get(0).add(String.valueOf(id));
-
                     this.writeAcargo(String.valueOf(ref_produccion), String.valueOf(id));
-
                 }
                 else {
                     if(ref_produccion < 130) {
@@ -447,8 +453,8 @@ public class Generador {
         }
         ref_produccion+=1;
     }
+
     public void writeAcargo(String ref_produccion, String ref_director) {
-        //System.out.println("Profesor(" + id + "," + nombre + "," + titulo + "," + jerarquia + ")");
         String linea = ref_produccion + "," + ref_director + "\n";
         try {
             fwAcargo.write(linea);
@@ -458,7 +464,6 @@ public class Generador {
     }
 
     public void writeTrabaja(int id_persona_n,int ref_produccion) {
-        //System.out.println("Profesor(" + id + "," + nombre + "," + titulo + "," + jerarquia + ")");
         String linea = id_persona_n + "," + ref_produccion + "\n";
         try {
             fwTrabajan.write(linea);
@@ -468,7 +473,6 @@ public class Generador {
     }
 
     public void writePersona(int id, String nombre, String direccion, String telefono) {
-        //System.out.println("Profesor(" + id + "," + nombre + "," + titulo + "," + jerarquia + ")");
         String linea = id + "," + nombre + "," + direccion + "," + telefono + "\n";
         try {
             fwPersonas.write(linea);
@@ -476,22 +480,15 @@ public class Generador {
             System.out.println(ex.getMessage());
         }
     }
-    public void writeActor(int id, String nombre, String direccion, String telefono) {
+    public void writeActor(int id, String nombre, String direccion, String telefono, int ref_manager) {
 
-        //System.out.println("Profesor(" + id + "," + nombre + "," + titulo + "," + jerarquia + ")");
-        String linea = id + "," + nombre + "," + direccion + "," + telefono + "\n";
+        String linea = id + "," + nombre + "," + direccion + "," + telefono + "," + ref_manager + "\n";
         try {
-            fwPersonas.write(linea);
+            fwActores.write(linea);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
     }
 
-    public double redondear(double val, int places) {
-        long factor = (long) Math.pow(10, places);
-        val = val * factor;
-        long tmp = Math.round(val);
-        return (double) tmp / factor;
-    }
 
 }
