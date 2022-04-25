@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -17,18 +15,34 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 /**
  *
- * @author renzo
+ * @author Benjamin G
  */
 
 /*
  ESQUEMA DE LA BASE DE DATOS
- Carrera(id[PK],nombre)
- Profesor(id,nombre,titulo,jerarquia)
- Director(idCarrera[FK],idProfesor[FK],anio)
- Curso(id,nombre,idCarrera[FK],semestre,creditos)
- Alumno(id[PK],nombre,apellidoPat,apellidoMat,sexo,fecnac,anioIngreso)
- InstanciaCurso(idCurso[FK],anio,idProfesor,nroAlumnos) PK={idCurso,anio}
- AlumnoInstancia(idAlumno[FK],idCurso[FK],anio,nota) FK={idCurso,año}
+
+Persona(id_persona[PK],nombre,direccion,telefono)
+Produccion(id_produccion[PK],fecha_estreno,censura,nombre,categoria,ref_director[FK])
+Locacion(id_direccion,direccion_locacion)
+grabadaEn(ref_produccion[FK],ref_locacion[FK])
+Pelicula(id_produccion[PK],ref_pelicula[FK])
+Serie(ref_produccion[FK])
+Secuela(id_secuela[PK],ref_pelicula[FK])
+Temporada(id_temporada[PK],nro_capitulos, ref_serie[FK])
+Director(id_persona[PK],nombre,direccion,telefono,ref_produccion[FK])
+Manager(id_persona[PK],nombre,direccion,telefono,snn,fecha_nacimiento)
+Actor(id_persona[PK],nombre,direccion,telefono,ref_manager[FK])
+Doble(id_persona[PK],nombre,direccion,telefono,especialidad)
+Extra(id_persona[PK],nombre,direccion,telefono,tiempo)
+Normal(id_persona[PK],nombre,direccion,telefono,papel)
+aCargo(ref_produccion[FK],ref_director[FK])
+trabajan(ref_persona[FK],ref_produccion[FK])
+Bodega(id_bodega[PK],direccion_bodega)
+abastece(ref_serie[FK],ref_bodega[FK])
+Efecto_especial(id_bodega[PK],direccionbodega,elemento)
+Ropa(id_bodega[PK],direccionbodega,vestuario)
+Maquinaria(id_bodega[PK],direccionbodega,implementacion)
+Insumo(id_bodega[PK],direccionbodega,artefacto)
  */
 
 
@@ -47,13 +61,6 @@ public class Generador {
 
     ArrayList<Integer> id_managers = new ArrayList();
 
-
-    HashMap<Integer, Integer> id_directores = new HashMap<Integer, Integer>();
-
-
-    int contDirectores = 0;
-
-    int ref_produccion = 0;
     int nro_anios = 0;
     int nro_actores = 0;
     int min_nro_personas = 20;
@@ -252,7 +259,6 @@ public class Generador {
     }
 
     public void writeActoresDoble(int id, String nombre, String direccion, String telefono, Integer ref_manager, String especialidad) {
-        //System.out.println(id + "," + nombre + "," + direccion + "," + telefono + "," + especialidad + "\n");
         String linea = id + "," + nombre + "," + direccion + "," + telefono + "," + ref_manager + "," + especialidad + "\n";
         try {
             fwActoresDoble.write(linea);
@@ -261,7 +267,6 @@ public class Generador {
         }
     }
     public void writeActoresExtra(int id, String nombre, String direccion, String telefono, Integer ref_manager, String tiempo) {
-        //System.out.println(id + "," + nombre + "," + direccion + "," + telefono + "," + especialidad + "\n");
         String linea = id + "," + nombre + "," + direccion + "," + telefono + "," + ref_manager + "," + tiempo + "\n";
         try {
             fwActoresExtra.write(linea);
@@ -350,7 +355,7 @@ public class Generador {
 
         int ref_director = 0;
 
-        for (int i = 0; i < this.dic_producciones.size(); i++) {
+        for (int i = 1; i < this.dic_producciones.size() + 1; i++) {
             id = i;
             fecha = dic_fechas_nacimiento.get(rand.nextInt(dic_fechas_nacimiento.size()));
             censura = censuras.get(ThreadLocalRandom.current().nextInt(0, censuras.size()));
@@ -390,8 +395,6 @@ public class Generador {
             int telefono = ThreadLocalRandom.current().nextInt(10000000, 99999999);
             String direccion = dic_direcciones.get(rand.nextInt(dic_direcciones.size()));
 
-
-
             if (rand.nextBoolean()) {
                 nombre = dic_nombres_hombres.get(rand.nextInt(dic_nombres_hombres.size()));
             } else {
@@ -402,8 +405,8 @@ public class Generador {
             this.writePersona(id_persona_n, nombre, direccion, "9" + Integer.toString(telefono));
             //Primero se generan si o si 130 directores 1 para cada pelicula
             if(i <130){
-                this.writeDirector(id_persona_n,nombre,direccion,"9" + Integer.toString(telefono), String.valueOf(i));
-                this.writeAcargo( String.valueOf(i),  String.valueOf(i));
+                this.writeDirector(id_persona_n,nombre,direccion,"9" + Integer.toString(telefono), String.valueOf(i+1));
+                this.writeAcargo( String.valueOf(i+1),  String.valueOf(i+1));
             }
             else {
                 this.elegirPersona(id_persona_n, nombre, direccion, "9" + Integer.toString(telefono));
@@ -443,14 +446,7 @@ public class Generador {
             default:
 
         }
-        /*
-        //Si es director trabajara en su produccion
-        if(rnd == 3) {
-            this.writeTrabaja(id, ref_produccion-1);
-        }
-        else{
-        */
-            this.writeTrabaja(id,ThreadLocalRandom.current().nextInt(0, 129));
+            this.writeTrabaja(id,ThreadLocalRandom.current().nextInt(1, 130));
 
 
     }
@@ -490,6 +486,5 @@ public class Generador {
             System.out.println(ex.getMessage());
         }
     }
-
 
 }
