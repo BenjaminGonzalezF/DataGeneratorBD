@@ -1,0 +1,111 @@
+create table persona(
+	id_persona serial primary key,
+	nombre text not null,
+	direccion text not null,
+	telefono text not null
+);
+create table produccion(
+	id_produccion serial primary key,
+	fecha_estreno date not null,
+	censura text not null,
+	nombre text not null,
+	categoria text not null,
+	ref_director integer REFERENCES persona(id_persona) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+create table locacion(
+	id_direccion serial primary key,
+	direccion_locacion text not null	
+);
+
+create table grabadaEn(
+	ref_produccion integer REFERENCES produccion(id_produccion) ON UPDATE CASCADE ON DELETE CASCADE,
+	ref_locacion integer REFERENCES locacion(id_direccion) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+create table director(
+	ref_produccion integer REFERENCES produccion(id_produccion) ON UPDATE CASCADE ON DELETE CASCADE
+)INHERITS (persona);
+
+create table manager(
+	snn text not null,
+	fecha_nacimiento date not null
+)INHERITS (persona);
+
+create table actor(
+	ref_manager integer REFERENCES persona(id_persona) ON UPDATE CASCADE ON DELETE CASCADE
+)INHERITS (persona);
+
+create table doble (
+	especialidad text not null
+)INHERITS (actor);
+
+create table extra (
+	tiempo text not null
+)INHERITS (actor);
+
+create table normal (
+	papel text not null
+)INHERITS (actor);
+
+create table acargo(
+	ref_produccion integer REFERENCES produccion(id_produccion) ON UPDATE CASCADE ON DELETE CASCADE,
+	ref_director integer REFERENCES persona(id_persona) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+create table trabajan(
+	ref_persona integer REFERENCES persona(id_persona) ON UPDATE CASCADE ON DELETE CASCADE,
+	ref_produccion  integer REFERENCES produccion(id_produccion) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+
+
+create table pelicula(
+	ref_produccion integer REFERENCES produccion(id_produccion) ON UPDATE CASCADE ON DELETE CASCADE
+)INHERITS (produccion);
+
+
+create table secuela(
+	id_secuela serial primary key,
+	ref_pelicula integer REFERENCES produccion(id_produccion) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+create table serie(
+	ref_produccion integer REFERENCES produccion(id_produccion) ON UPDATE CASCADE ON DELETE CASCADE
+)INHERITS (produccion);
+
+create table temporada(
+	id_temporada serial primary key,
+	nro_capitulos integer not null,
+	ref_serie integer REFERENCES produccion(id_produccion) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+create table bodega(
+	id_bodega serial primary key,
+	direccion_bodega text not null
+);
+
+create table abastece(
+	ref_serie integer REFERENCES produccion(id_produccion) ON UPDATE CASCADE ON DELETE CASCADE,
+	ref_bodega integer REFERENCES bodega(id_bodega) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+
+create table efecto_especial(
+	elemento text not null
+)INHERITS (bodega);
+
+create table ropa(
+	vestuario text not null
+)INHERITS (bodega);
+
+create table maquinaria(
+	implementacion text not null
+)INHERITS(bodega);
+
+create table insumo(
+	artefacto text not null
+)INHERITS(bodega);
