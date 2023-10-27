@@ -1,6 +1,8 @@
 # DataGeneratorBD
+Este programa se encarga de generar datos para ser introducidos en una base de datos relacional.
 
 
+#Instrucciones de ejecución
 Ejecutar java -jar source-code.jar N
 
 
@@ -29,7 +31,7 @@ Archivos de salida:
 	-producciones.csv
 	-series.csv
 	-trabajan.csv
-Esquema
+#Esquema SQL
 
 Persona(id_persona[PK],nombre,direccion,telefono)
 Produccion(id_produccion[PK],fecha_estreno,censura,nombre,categoria,ref_director[FK])
